@@ -1,11 +1,8 @@
-from turtle import pos, position
-from numpy import full
+
 import sys
-import copy
 import pygame
 import torch as T
 import random as r
-import time
 import constants as c
 from piece import Piece
 from state import State
@@ -19,11 +16,12 @@ class Game:
         self.agent = Agent(learning_rate=0.001, discount_factor=0.99, epsilon=0.3)
         self.piece_set = False
         self.running = False
+        self.row_cleared_reward = 0.0
         
 
     def update(self, event, automatic=False):
         if event == "down":
-            self.app.row_cleared_reward = 0.0
+            self.row_cleared_reward = 0.0
             if not self.move("down"): self.set_piece()
             elif not automatic: self.state.increment_score()
         elif event == "left":
@@ -41,9 +39,7 @@ class Game:
         self.state.reward = 0.0 #?
         final_pos = []
         final_positions = self.generate_positions()
-        
         if self.agent.random_journey() and train:
-
             while final_positions:
                 destination = r.choice(final_positions)
                 board = self.state.stat_board()
@@ -54,7 +50,6 @@ class Game:
                     return final_pos, self.state.reward, self.state.to_id(), False
                 final_positions.remove(destination)
             return [], -1, self.state.to_id(), True
-
         else:
             possible_states = []
             board = self.state.stat_board()
@@ -65,21 +60,17 @@ class Game:
                     board[row][col] = 1
                 possible_states.append((pos, board))
                 board = self.state.stat_board()
-            
             if possible_states == []: 
                 return [], -1, self.state.to_id(), True
-
             for (pos, board_) in possible_states:
                 state_tensor = T.tensor([self.state.to_id(board_)], dtype=T.float32).to(self.agent.dqn.device)
                 q_estimate = self.agent.dqn.forward(state_tensor)
                 if q_estimate.item() >= max_q_value:
                     max_q_value = q_estimate.item()
                     final_pos = pos
-
             self.move_to(final_pos)
             self.set_piece()
             return final_pos, self.state.reward, self.state.to_id(), False
-
 
 
     def generate_positions(self):
@@ -193,7 +184,7 @@ class Game:
     def add_score(self, rows_cleared):
         score_multipliers = {1: 40, 2: 100, 3: 300, 4: 1200}
         self.state.increment_score(score_multipliers[rows_cleared] * (self.state.level + 1))
-        self.app.row_cleared_reward = rows_cleared ** 2 * 10 + 1
+        self.row_cleared_reward = rows_cleared ** 2 * 10 + 1
 
 
     def check_level(self):

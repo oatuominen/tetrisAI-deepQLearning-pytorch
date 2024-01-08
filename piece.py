@@ -1,6 +1,4 @@
 
-import numpy as np
-import constants as c
 
 class Piece:
 
@@ -22,6 +20,7 @@ class Piece:
                 if square == "0":
                     self.positions.append((i + self.y, j + self.x))
    
+
     def updated_format(self, format):
         new_pos = []
         for (i, row) in enumerate(format):
@@ -73,16 +72,7 @@ class Piece:
 
 
 
-#delete
 
-
-
-    def rotate(self, positions, shape_index):
-        next_shape = self.shapes[shape_index % len(self.shapes)]
-        return self.updated_format(next_shape)
-    
-    def fix_up(self, positions):
-        return [(row - 1, col) for (row, col) in positions]
 
 
 

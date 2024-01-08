@@ -2,12 +2,8 @@
 import pygame
 import sys
 import time
-import numpy as np
-import torch as T
 import constants as c
 from game import Game
-
-
 
 
 class App:
@@ -23,21 +19,18 @@ class App:
         self.gravity = 1000
         self.action_speed = 200
         self.num_games = 5000
-        self.row_cleared_reward = 0.0 #move
-
+        
 
     def train_agent(self, manual=False):
         game_num = 0
         while game_num < self.num_games:
             if game_num % 10 == 0: self.game.agent.dqn.save_dqn()
             self.game.start()
-            print("Game: ", game_num)
             while self.game.running:
-
                 self.draw()
                 if not self.game.state.has_active_piece():
                     self.game.new_piece()
-                    self.row_cleared_reward = 0.0
+                    self.game.row_cleared_reward = 0.0
                     if not manual:
                         initial_state = self.game.state.to_id()
                         final_position, reward, new_state, done = self.game.one_piece_journey() 
@@ -50,14 +43,10 @@ class App:
                         new_state = self.game.state.to_id()
                         done = not self.game.running
                         self.game.piece_set = False
-
-                    reward += self.row_cleared_reward #modify
-                    print(reward)
-
+                    reward += self.game.row_cleared_reward
                     if done: 
                         reward -= 100
                         self.game.running=False
-
                     self.game.agent.store_transition(initial_state, final_position, new_state, reward, done)
                     self.game.agent.learn()
                 self.react_to_events(interactive=manual)
@@ -82,7 +71,6 @@ class App:
                             self.game.running=False
                     else: continue
                     self.action_timer = pygame.time.get_ticks()
-
                 self.react_to_events(interactive=False)
                 pygame.display.flip()
                 self.clock.tick(60)
@@ -111,13 +99,16 @@ class App:
             return True
         else: return False
 
+
     def time_to_fall(self):
         current_time = pygame.time.get_ticks()
         return current_time - self.fall_timer >= self.gravity
         
+
     def time_to_act(self):
         current_time = pygame.time.get_ticks()
         return current_time - self.action_timer >= self.action_speed
+
 
     def react_to_events(self, interactive=True):
         for event in pygame.event.get():
@@ -136,7 +127,6 @@ class App:
                         self.game.quit_game()
 
     def draw(self):
-        #self.draw_grid()
         self.display_text(f'Score: {self.game.state.score}', c.SCORE_Y)
         self.display_text(f'Level: {self.game.state.level}', c.LEVEL_Y)
 
@@ -168,7 +158,6 @@ class App:
         self.screen.blit(text, text_location)
         return text
         
-
 app = App()
 app.view_agent_play()
 

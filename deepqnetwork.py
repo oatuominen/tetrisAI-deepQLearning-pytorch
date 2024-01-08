@@ -1,10 +1,8 @@
+
 import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
-import numpy as np
-
 
 
 class DeepQNetwork(nn.Module):
@@ -28,8 +26,8 @@ class DeepQNetwork(nn.Module):
         x = F.relu(self.fc1(state))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        journeys = self.fc4(x)
-        return journeys
+        q_value = self.fc4(x)
+        return q_value
 
     def save_dqn(self):
         T.save(self.state_dict(), 'dqn.pth')
