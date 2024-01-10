@@ -60,9 +60,7 @@ class State:
         invert_heights = np.where(mask.any(axis=0), np.argmax(mask, axis=0), c.ROWS)
         heights = c.ROWS - invert_heights
         total_height = np.sum(heights)
-        currs = heights[:-1]
-        nexts = heights[1:]
-        diffs = np.abs(currs - nexts)
+        diffs = np.abs(heights[:-1] - heights[1:])
         total_bumpiness = np.sum(diffs)
         return total_bumpiness, total_height
     
