@@ -99,27 +99,13 @@ class State:
     def shift_down(self, emptied_row_index):
         for index in range(emptied_row_index, 0, -1):
             self.board[index] = copy.deepcopy(self.board[index-1])
-        
-
-    def empty_places_below(self):
-        empty_places = 0
-        for (row, col) in self.current_piece.positions:
-            row_index = row
-            count = 0
-            while row_index < c.ROWS-1 and self.board[row_index + 1][col] == 0:
-                count += 1; row_index += 1
-            empty_places += count
-        return empty_places
-
 
     def increment_score(self, amount=1):
         self.score += amount
 
-
     def empty_board(self):
         self.board = [[0] * c.COLUMNS for _ in range(c.ROWS)]
         self.color_board = {(x, y): (0, 0, 0) for x in range(20) for y in range(10)}
-
 
     def has_active_piece(self):
         return self.current_piece.color != (0, 0, 0) 

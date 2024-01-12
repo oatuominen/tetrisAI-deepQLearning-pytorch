@@ -13,7 +13,7 @@ class Game:
     def __init__(self, app):
         self.app = app
         self.state = State()
-        self.agent = Agent(learning_rate=0.001, discount_factor=0.99, epsilon=0.3)
+        self.agent = Agent(learning_rate=0.001, discount_factor=0.99, epsilon=1.0)
         self.piece_set = False
         self.running = False
         self.row_cleared_reward = 0.0
