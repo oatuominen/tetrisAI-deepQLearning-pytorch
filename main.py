@@ -21,7 +21,7 @@ class App:
         self.num_games = 5000
         
 
-    def train_agent(self, manual=False):
+    def train_agent(self):
         game_num = 0
         while game_num < self.num_games:
             if game_num % 10 == 0: self.game.agent.dqn.save_dqn()
@@ -31,25 +31,15 @@ class App:
                 if not self.game.state.has_active_piece():
                     self.game.new_piece()
                     self.game.row_cleared_reward = 0.0
-                    if not manual:
-                        initial_state = self.game.state.to_id()
-                        final_position, reward, new_state, done = self.game.one_piece_journey() 
-                    else:
-                        initial_state = self.game.state.to_id()
-                        while not self.game.piece_set:
-                            continue
-                        final_position = self.game.state.latest_position
-                        reward = self.game.state.reward
-                        new_state = self.game.state.to_id()
-                        done = not self.game.running
-                        self.game.piece_set = False
+                    initial_state = self.game.state.to_id()
+                    final_position, reward, new_state, done = self.game.one_piece_journey() 
                     reward += self.game.row_cleared_reward
                     if done: 
                         reward -= 100
                         self.game.running=False
                     self.game.agent.store_transition(initial_state, final_position, new_state, reward, done)
                     self.game.agent.learn()
-                self.react_to_events(interactive=manual)
+                self.react_to_events(interactive=False)
                 pygame.display.flip()
                 self.clock.tick(60)
             game_num += 1
@@ -160,4 +150,6 @@ class App:
         
 app = App()
 app.view_agent_play()
+
+
 
